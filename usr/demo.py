@@ -1,6 +1,6 @@
 import uos
 from usr.qframe import Application
-from usr.ui import gui
+from usr.views import gui
 
 
 def mount_flash():

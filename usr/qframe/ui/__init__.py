@@ -1,5 +1,5 @@
 import lvgl as lv
-from tp import cst816 as Cst816
+# from tp import cst816 as Cst816
 from machine import Pin, LCD
 
 
@@ -132,7 +132,7 @@ class Gui(object):
 
     def init(self):
         self.lcd = self.init_lcd()
-        self.tp = self.init_tp()
+        # self.tp = self.init_tp()
         self.lv, self.disp_drv, self.indev_drv = self.init_lvgl(self.lcd, self.tp)
 
     @staticmethod
@@ -186,7 +186,7 @@ class Gui(object):
         indev_drv = lv.indev_drv_t()
         indev_drv.init()
         indev_drv.type = lv.INDEV_TYPE.POINTER
-        indev_drv.read_cb = tp.read
+        # indev_drv.read_cb = tp.read
         indev_drv.long_press_time = 400  # 400，表示长按的时间阈值，即按住一个点的时间超过该值时，触发长按事件。
         indev_drv.scroll_limit = 10  # 10，表示在拖动对象之前，需要滑动的像素数。
         indev_drv.scroll_throw = 10  # 10，表示滚动减速的百分比，值越大则减速越快。
@@ -221,20 +221,3 @@ class Gui(object):
             print("tp: CLICK")
         elif para == 6:
             print("tp: error")
-
-
-class GuiService(Gui):
-
-    def __init__(self, app=None):
-        super().__init__()
-        if app:
-            self.init_app(app)
-
-    def init_app(self, app):
-        app.register('gui', self)
-
-    def load(self):
-        self.init()
-
-
-gui = GuiService()

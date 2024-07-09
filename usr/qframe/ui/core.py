@@ -61,7 +61,7 @@ class Style(lv.style_t):
         super().__init__()
         self.init()
         for option, value in options.items():
-            getattr(self, 'set_' + option)(value)
+            getattr(self, 'set_' + option)(*(value if isinstance(value, (tuple, list)) else (value, )))
 
 
 def show(self):
