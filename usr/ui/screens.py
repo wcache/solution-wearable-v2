@@ -778,3 +778,74 @@ class StepScreen(Widget):
         for i in range(24):
             value = urandom.randint(10, 100)
             self.chart.update(i, value)
+
+
+@Singleton
+class StepSettingScreen(Widget):
+
+    def __init__(self, parent=None):
+        super().__init__(parent, size=(240, 320))
+        self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.title = Label(self, text='取消', align=lv.ALIGN.TOP_LEFT)
+        self.title.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.time = Label(self, text='10:09', align=lv.ALIGN.TOP_RIGHT)
+        self.time.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.layout = Widget(
+            self,
+            size=(240, 250),
+            y=30,
+            layout=lv.LAYOUT_FLEX.value,
+            style_flex_flow=(lv.FLEX_FLOW.ROW_WRAP, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_main_place=(lv.FLEX_ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_cross_place=(lv.FLEX_ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_track_place=(lv.FLEX_ALIGN.SPACE_EVENLY, lv.PART.MAIN | lv.STATE.DEFAULT),
+        )
+        self.layout.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.text = Label(self.layout, text='目标设定')
+        self.text.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.text.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.minus = Button(
+            self.layout,
+            text='-',
+            size=(40, 40),
+            style_radius=(90, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_bg_color=(lv.palette_main(lv.PALETTE.BLUE), lv.PART.MAIN | lv.STATE.DEFAULT),
+        )
+        self.minus.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.minus.add_flag(lv.OBJ_FLAG_FLEX_IN_NEW.TRACK)
+        self.minus.add_event_cb(self.minus_event_clicked_handler, lv.EVENT.CLICKED, None)
+        self.target = Label(self.layout, text='8000')
+        self.target.add_style(arial55_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.plus = Button(
+            self.layout,
+            text='+',
+            size=(40, 40),
+            style_radius=(90, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_bg_color=(lv.palette_main(lv.PALETTE.BLUE), lv.PART.MAIN | lv.STATE.DEFAULT),
+        )
+        self.plus.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.plus.add_event_cb(self.plus_event_clicked_handler, lv.EVENT.CLICKED, None)
+        self.unit = Label(self.layout, text='步')
+        self.unit.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.unit.add_flag(lv.OBJ_FLAG_FLEX_IN_NEW.TRACK)
+        self.ok = Button(self.layout, text='确定', size=(200, 50))
+        self.ok.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.ok.add_flag(lv.OBJ_FLAG_FLEX_IN_NEW.TRACK)
+        self.ok.set_style_text_color(lv.palette_main(lv.PALETTE.BLUE), lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.ok.set_style_bg_opa(lv.OPA._30, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.ok.add_event_cb(self.ok_event_clicked_handler, lv.EVENT.CLICKED, None)
+
+    def plus_event_clicked_handler(self, event):
+        value = int(self.target.get_text())
+        value += 500
+        self.target.set_text(str(value))
+
+    def minus_event_clicked_handler(self, event):
+        value = int(self.target.get_text())
+        value -= 500
+        self.target.set_text(str(value))
+
+    def ok_event_clicked_handler(self, event):
+        pass
