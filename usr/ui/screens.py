@@ -48,7 +48,7 @@ class MainTileView(TileView):
         self.dial_plate = DialPlateScreen(self.tile00)
 
         self.tile10 = self.add_tile(1, 0, lv.DIR.LEFT | lv.DIR.RIGHT)
-        self.pointer_plate = PointerPlateScreen(self.tile10)
+        self.watch = WatchFaceScreen(self.tile10)
 
 
 class StatusBar(Widget):
@@ -135,7 +135,7 @@ class DialPlateScreen(Widget):
 
 
 @Singleton
-class PointerPlateScreen(Widget):
+class WatchFaceScreen(Widget):
     R_BG_IMG_SRC = 'E:/media/r-b.png'
     R_H_BG_IMG_SRC = 'E:/media/r-h.png'
     R_M_BG_IMG_SRC = 'E:/media/r-m.png'
