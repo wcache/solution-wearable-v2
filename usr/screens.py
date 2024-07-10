@@ -3,29 +3,11 @@ import lvgl as lv
 from usr.qframe.ui import Gui
 from usr.qframe.logging import getLogger
 from usr.qframe.collections import Singleton
-from usr.qframe.ui.widgets import Widget, Label
+from usr.qframe.ui.widgets import Widget, Label, TileView
 from usr.qframe.ui.core import Style
 
 
 logger = getLogger(__name__)
-
-
-class GuiService(Gui):
-
-    def __init__(self, app=None):
-        super().__init__()
-        if app:
-            self.init_app(app)
-
-    def init_app(self, app):
-        app.register('gui', self)
-
-    def load(self):
-        logger.debug('load {}'.format(type(self).__name__))
-        self.init()
-
-
-gui = GuiService()
 
 
 class Font(object):
@@ -59,10 +41,51 @@ normal_style = Style(
 
 
 @Singleton
-class DialPlateScreen(Widget):
+class MainTileView(TileView):
 
     def __init__(self):
         super().__init__(None)
         self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.tile00 = self.add_tile(0, 0, lv.DIR.RIGHT)
+        self.dial_plate = DialPlateScreen(self.tile00)
+
+        self.tile10 = self.add_tile(1, 0, lv.DIR.LEFT | lv.DIR.RIGHT)
+        self.app_list = AppListScreen(self.tile10)
+
+
+@Singleton
+class DialPlateScreen(Widget):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
         self.text = Label(self, text=type(self).__name__)
 
+
+@Singleton
+class AppListScreen(Widget):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.text = Label(self, text=type(self).__name__)
+
+
+class GuiService(Gui):
+
+    def __init__(self, app=None):
+        super().__init__()
+        if app:
+            self.init_app(app)
+
+    def init_app(self, app):
+        app.register('gui', self)
+
+    def load(self):
+        logger.debug('load {}'.format(type(self).__name__))
+        self.init()
+        MainTileView().load()
+
+
+gui = GuiService()
