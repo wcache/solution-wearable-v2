@@ -111,8 +111,8 @@ class DialPlateScreen(Widget):
         self.layout1 = Widget(self, size=(116, 200), align=lv.ALIGN.LEFT_MID)
         self.layout1.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
         self.hour_high = Image(self.layout1, src=self.H_IMG_FORMAT.format(0), x=0, y=0)
-        self.hour_low = Image(self.layout1, src=self.H_IMG_FORMAT.format(0), x=0, y=100)
-        self.minute_high = Image(self.layout1, src=self.H_IMG_FORMAT.format(0), x=58, y=0)
+        self.hour_low = Image(self.layout1, src=self.H_IMG_FORMAT.format(0), x=58, y=0)
+        self.minute_high = Image(self.layout1, src=self.H_IMG_FORMAT.format(0), x=0, y=100)
         self.minute_low = Image(self.layout1, src=self.H_IMG_FORMAT.format(0), x=58, y=100)
 
         self.date = Label(self, text='{:02d}/{:02d}'.format(0, 0))
@@ -141,6 +141,7 @@ class PointerPlateScreen(Widget):
     R_M_BG_IMG_SRC = 'E:/media/r-m.png'
     R_S_BG_IMG_SRC = 'E:/media/r-s.png'
     R_P_BG_IMG_SRC = 'E:/media/r-p.png'
+    M_IMG_FORMAT = 'E:/media/m{}.png'
 
     def __init__(self, parent=None):
         super().__init__(
@@ -167,13 +168,25 @@ class PointerPlateScreen(Widget):
         self.second_hand.align_to(self.point, lv.ALIGN.OUT_TOP_MID, 0, 19)
         self.second_hand.set_pivot(7, 106)
 
-    def update(self, hour, minute, second):
+        self.layout1 = Widget(self.bg, size=(116, 120), align=lv.ALIGN.CENTER)
+        self.layout1.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.layout1.move_background()
+        self.hour_high = Image(self.layout1, src=self.M_IMG_FORMAT.format(0), x=0, y=0)
+        self.hour_low = Image(self.layout1, src=self.M_IMG_FORMAT.format(0), x=58, y=0)
+        self.date = Label(self.layout1, text='{:02d}/{:02d}'.format(0, 0), align=lv.ALIGN.BOTTOM_LEFT)
+        self.date.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.weekday = Label(self.layout1, text=WEEKDAY_MAP[0], align=lv.ALIGN.BOTTOM_RIGHT)
+        self.weekday.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+    def update(self, month, day, hour, minute, second, weekday):
         angle_for_second = second * 6  # 秒度
         self.second_hand.set_angle(angle_for_second * 10)
         angle_for_minute = minute * 6 + angle_for_second / 60  # 分度
         self.minute_hand.set_angle(int(angle_for_minute * 10))
         angle_for_hour = hour * 30 + angle_for_minute / 12  # 时度
         self.hour_hand.set_angle(int(angle_for_hour * 10))
+        self.date.set_text('{:02d}/{:02d}'.format(month, day))
+        self.weekday.set_text(WEEKDAY_MAP[weekday])
 
 
 @Singleton
