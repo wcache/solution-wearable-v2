@@ -50,6 +50,12 @@ class MainTileView(TileView):
         self.tile10 = self.add_tile(1, 0, lv.DIR.LEFT | lv.DIR.RIGHT)
         self.watch = WatchFaceScreen(self.tile10)
 
+        self.tile20 = self.add_tile(2, 0, lv.DIR.LEFT | lv.DIR.RIGHT)
+        self.app_grid = AppGridScreen(self.tile20)
+
+        self.tile30 = self.add_tile(3, 0, lv.DIR.LEFT | lv.DIR.RIGHT)
+        self.app_list = AppListScreen(self.tile30)
+
 
 class StatusBar(Widget):
     SIGNAL_ICON_SRC = 'E:/media/s4.png'
@@ -236,3 +242,86 @@ class SleepModeScreen(Widget):
 
     def set_notice_text(self, text):
         self.notice_text.set_text(text)
+
+
+@Singleton
+class AppGridScreen(Widget):
+    HR_IMG_SRC = 'E:/media/app_heart.png'
+    PHONE_IMG_SRC = 'E:/media/app_phone.png'
+    TIMER_IMG_SRC = 'E:/media/app_time.png'
+    WECHAT_IMG_SRC = 'E:/media/app_chat.png'
+
+    def __init__(self, parent=None):
+        super().__init__(
+            parent,
+            size=(240, 280),
+            layout=lv.LAYOUT_FLEX.value,
+            style_flex_flow=(lv.FLEX_FLOW.ROW_WRAP, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_main_place=(lv.FLEX_ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_cross_place=(lv.FLEX_ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_track_place=(lv.FLEX_ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_bg_color=(lv.color_black(), lv.PART.MAIN | lv.STATE.DEFAULT)
+        )
+        self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.hr = Image(self, src=self.HR_IMG_SRC)
+        self.phone = Image(self, src=self.PHONE_IMG_SRC)
+        self.timer = Image(self, src=self.TIMER_IMG_SRC)
+        self.wechat = Image(self, src=self.WECHAT_IMG_SRC)
+
+
+class ListItemBox(Widget):
+
+    def __init__(self, parent, icon='', text=''):
+        super().__init__(parent, size=(lv.pct(100), lv.pct(20)), style_bg_opa=(lv.OPA.TRANSP, lv.PART.MAIN | lv.STATE.DEFAULT))
+        self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.icon = Image(self, src=icon)
+        self.icon.align(lv.ALIGN.LEFT_MID, 10, 0)
+        self.text = Label(self, text=text)
+        self.text.align_to(self.icon, lv.ALIGN.OUT_RIGHT_MID, 15, 0)
+        self.text.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+
+@Singleton
+class AppListScreen(Widget):
+    HR_IMG_SRC = 'E:/media/img_relation.png'
+    PHONE_IMG_SRC = 'E:/media/img_notify.png'
+    WECHAT_IMG_SRC = 'E:/media/img_message_small.png'
+    TIMER_IMG_SRC = 'E:/media/img_alarm.png'
+
+    def __init__(self, parent=None):
+        super().__init__(
+            parent,
+            size=(240, 280),
+            layout=lv.LAYOUT_FLEX.value,
+            style_flex_flow=(lv.FLEX_FLOW.COLUMN, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_main_place=(lv.FLEX_ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_cross_place=(lv.FLEX_ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_track_place=(lv.FLEX_ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_bg_color=(lv.color_black(), lv.PART.MAIN | lv.STATE.DEFAULT)
+        )
+        self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.hr = ListItemBox(self, icon=self.HR_IMG_SRC, text='心率')
+        self.hr.add_event_cb(self.hr_event_clicked_cb, lv.EVENT.CLICKED, None)
+
+        self.phone = ListItemBox(self, icon=self.PHONE_IMG_SRC, text='电话')
+        self.phone.add_event_cb(self.phone_event_clicked_cb, lv.EVENT.CLICKED, None)
+
+        self.wechat = ListItemBox(self, icon=self.WECHAT_IMG_SRC, text='微聊')
+        self.wechat.add_event_cb(self.wechat_event_clicked_cb, lv.EVENT.CLICKED, None)
+
+        self.timer = ListItemBox(self, icon=self.TIMER_IMG_SRC, text='倒计时')
+        self.timer.add_event_cb(self.timer_event_clicked_cb, lv.EVENT.CLICKED, None)
+
+    def hr_event_clicked_cb(self, event):
+        pass
+
+    def phone_event_clicked_cb(self, event):
+        pass
+
+    def wechat_event_clicked_cb(self, event):
+        pass
+
+    def timer_event_clicked_cb(self, event):
+        pass
