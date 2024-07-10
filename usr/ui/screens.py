@@ -329,7 +329,7 @@ class AppListScreen(Widget):
 
 class Chart(Widget):
     
-    def __init__(self, parent, measure_type):
+    def __init__(self, parent, bottom_text, top_text, color):
         super().__init__(
             parent,
             size=(240, 120),
@@ -364,25 +364,23 @@ class Chart(Widget):
                     text=str(i * 6),
                     x=55 * i + 2,
                     y=85,
-                    style_text_color=(lv.palette_main(lv.PALETTE.GREY), lv.PART.MAIN | lv.STATE.DEFAULT)
+                    style_text_color=(color, lv.PART.MAIN | lv.STATE.DEFAULT)
                 )
                 self.sep_labels.append(label)
             else:
-                text = '85' if measure_type in (0, 1) else '35.3'
-                text2 = '100' if measure_type in (0, 1) else '41.0'
                 label = Label(
                     self,
-                    text=text,
-                    x=55 * i - (25 if measure_type in (0, 1) else 30),
+                    text=bottom_text,
+                    x=55 * i - 30,
                     y=85,
-                    style_text_color=(lv.palette_main(lv.PALETTE.RED), lv.PART.MAIN | lv.STATE.DEFAULT)
+                    style_text_color=(color, lv.PART.MAIN | lv.STATE.DEFAULT)
                 )
                 label2 = Label(
                     self,
-                    text=text2,
+                    text=top_text,
                     x=55 * i - 30,
                     y=0,
-                    style_text_color=(lv.palette_main(lv.PALETTE.RED), lv.PART.MAIN | lv.STATE.DEFAULT)
+                    style_text_color=(color, lv.PART.MAIN | lv.STATE.DEFAULT)
                 )
                 self.sep_labels.append(label)
                 self.sep_labels.append(label2)
@@ -395,7 +393,7 @@ class Chart(Widget):
                 self,
                 style_line_width=(3, lv.PART.MAIN | lv.STATE.DEFAULT),
                 style_line_rounded=(True, lv.PART.MAIN | lv.STATE.DEFAULT),
-                style_line_color=(lv.palette_main(lv.PALETTE.RED), lv.PART.MAIN | lv.STATE.DEFAULT)
+                style_line_color=(color, lv.PART.MAIN | lv.STATE.DEFAULT)
             )
             self.lines.append(line)
 
@@ -418,24 +416,17 @@ class Chart(Widget):
 
 class MeasurementScreen(Widget):
     RT_ICON_SRC = 'E:/media/chevron-left-r.png'
-    measure_type = 0  # 0心率，1血氧，2体温
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, text='心率', color=lv.palette_main(lv.PALETTE.RED), bottom_text='85', top_text='100'):
         super().__init__(
             parent,
             size=(240, 280)
         )
         self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
 
-        if self.measure_type == 0:
-            text = '心率'
-        elif self.measure_type == 1:
-            text = '血氧'
-        else:
-            text = '体温'
         self.rt_icon = Image(self, src=self.RT_ICON_SRC, align=lv.ALIGN.TOP_LEFT)
         self.rt_title = Label(self, text=text)
-        self.rt_title.set_style_text_color(lv.palette_main(lv.PALETTE.RED), lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.rt_title.set_style_text_color(color, lv.PART.MAIN | lv.STATE.DEFAULT)
         self.rt_title.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
         self.rt_title.align_to(self.rt_icon, lv.ALIGN.OUT_RIGHT_MID, 5, 0)
         self.time_label = Label(self, text='09:00', align=lv.ALIGN.TOP_RIGHT)
@@ -453,7 +444,7 @@ class MeasurementScreen(Widget):
         self.layout.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
         self.title = Label(self.layout, text=text)
         self.title.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
-        self.value = Label(self.layout, text='96', style_text_color=(lv.palette_main(lv.PALETTE.RED), lv.PART.MAIN | lv.STATE.DEFAULT))
+        self.value = Label(self.layout, text='96', style_text_color=(color, lv.PART.MAIN | lv.STATE.DEFAULT))
         self.value.add_style(arial55_style, lv.PART.MAIN | lv.STATE.DEFAULT)
         self.value_unit = Label(self.layout, text=('%' if self.measure_type in (0, 1) else '℃'))
         self.value_unit.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
@@ -463,52 +454,55 @@ class MeasurementScreen(Widget):
         self.text.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
         self.text.set_style_text_color(lv.palette_main(lv.PALETTE.GREY), lv.PART.MAIN | lv.STATE.DEFAULT)
 
-        self.chart = Chart(self.layout, self.measure_type)
+        self.chart = Chart(self.layout, bottom_text, top_text, color)
 
 
 @Singleton
 class HRMeasurementScreen(MeasurementScreen):
     measure_type = 0
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, parent=None):
+        super().__init__(parent, text='心率', color=lv.palette_main(lv.PALETTE.RED), bottom_text='85', top_text='100')
+
         # for test
-        self.chart.update(9, (37, 70))
-        self.chart.update(10, (17, 70))
-        self.chart.update(11, (7, 50))
-        self.chart.update(12, (20, 60))
-        self.chart.update(13, (30, 50))
-        self.chart.update(14, (25, 40))
-        self.chart.update(15, (17, 36))
+        self.chart.update(9, (47, 80))
+        self.chart.update(10, (27, 80))
+        self.chart.update(11, (17, 60))
+        self.chart.update(12, (30, 70))
+        self.chart.update(13, (40, 60))
+        self.chart.update(14, (35, 70))
+        self.chart.update(15, (27, 56))
 
 
 @Singleton
 class SPOMeasurementScreen(MeasurementScreen):
     measure_type = 1
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, parent=None):
+        super().__init__(parent, text='血氧', color=lv.palette_main(lv.PALETTE.BLUE), bottom_text='85', top_text='100')
+
         # for test
-        self.chart.update(9, (37, 70))
-        self.chart.update(10, (17, 70))
-        self.chart.update(11, (7, 50))
-        self.chart.update(12, (20, 60))
-        self.chart.update(13, (30, 50))
-        self.chart.update(14, (25, 40))
-        self.chart.update(15, (17, 36))
+        self.chart.update(9, (47, 80))
+        self.chart.update(10, (27, 80))
+        self.chart.update(11, (17, 60))
+        self.chart.update(12, (30, 70))
+        self.chart.update(13, (40, 60))
+        self.chart.update(14, (35, 70))
+        self.chart.update(15, (27, 56))
 
 
 @Singleton
 class TemperatureMeasurementScreen(MeasurementScreen):
     measure_type = 2
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, parent=None):
+        super().__init__(parent, text='体温', color=lv.palette_main(lv.PALETTE.GREEN), bottom_text='35.4', top_text='41.0')
+
         # for test
-        self.chart.update(9, (37, 70))
-        self.chart.update(10, (17, 70))
-        self.chart.update(11, (7, 50))
-        self.chart.update(12, (20, 60))
-        self.chart.update(13, (30, 50))
-        self.chart.update(14, (25, 40))
-        self.chart.update(15, (17, 36))
+        self.chart.update(9, (47, 80))
+        self.chart.update(10, (27, 80))
+        self.chart.update(11, (17, 60))
+        self.chart.update(12, (30, 70))
+        self.chart.update(13, (40, 60))
+        self.chart.update(14, (35, 70))
+        self.chart.update(15, (27, 56))
