@@ -2,7 +2,7 @@
 import lvgl as lv
 from usr.qframe.collections import Singleton, OrderedDict
 from usr.qframe.logging import getLogger
-from .widgets import Widget, Label, TileView, Image, Line
+from .widgets import Widget, Label, TileView, Image, Line, Button
 from .core import Style
 
 
@@ -506,3 +506,113 @@ class TemperatureMeasurementScreen(MeasurementScreen):
         self.chart.update(13, (40, 60))
         self.chart.update(14, (35, 70))
         self.chart.update(15, (27, 56))
+
+
+@Singleton
+class KeypadScreen(Widget):
+    RT_ICON_SRC = 'E:/media/chevron-left.png'
+    DEL_IMG_SRC = 'E:/media/delete.png'
+    NUMBER_ICON_SRC_FORMAT = 'E:/media/b{}.png'
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.rt_icon = Image(self, src=self.RT_ICON_SRC, align=lv.ALIGN.TOP_LEFT)
+
+        self.number_area = Widget(
+            self,
+            y=lv.pct(5),
+            size=(lv.pct(80), lv.pct(15)),
+            style_bg_opa=(lv.OPA.TRANSP, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_text_align=(lv.ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT)
+        )
+        self.number_area.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.number = Label(self.number_area, text='', style_align=(lv.ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT))
+        self.number.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.real_number = ''
+
+        self.delete_area = Widget(
+            self,
+            size=(lv.pct(20), lv.pct(15)),
+            x=lv.pct(80),
+            y=lv.pct(5),
+            style_bg_opa=(lv.OPA.TRANSP, lv.PART.MAIN | lv.STATE.DEFAULT)
+        )
+        self.delete_area.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.delete = Image(
+            self.delete_area,
+            src=self.DEL_IMG_SRC,
+            style_align=(lv.ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT)
+        )
+        self.delete_area.add_event_cb(self.delete_event_clicked_handler, lv.EVENT.CLICKED, None)
+
+        self.btn_layout = Widget(
+            self,
+            y=lv.pct(20),
+            size=(lv.pct(100), lv.pct(80)),
+            style_bg_opa=(lv.OPA.TRANSP, lv.PART.MAIN | lv.STATE.DEFAULT),
+            layout=lv.LAYOUT_FLEX.value,
+            style_flex_flow=(lv.FLEX_FLOW.ROW_WRAP, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_main_place=(lv.FLEX_ALIGN.SPACE_BETWEEN, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_cross_place=(lv.FLEX_ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_track_place=(lv.FLEX_ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT)
+        )
+        self.btn_layout.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        for key in [str(x) for x in range(1, 10)]:
+            btn = Button(
+                self.btn_layout,
+                size=(72, 44),
+                style_bg_color=(lv.color_hex(0x48586F), lv.PART.MAIN | lv.STATE.DEFAULT)
+            )
+            btn.add_event_cb(self.btn_event_clicked_handler, lv.EVENT.CLICKED, None)
+            btn.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+            btn.label.set_text(key)
+
+        self.temp = Widget(self.btn_layout, size=(72, 44))
+        self.temp.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        btn = Button(
+            self.btn_layout,
+            size=(72, 44),
+            style_bg_color=(lv.color_hex(0x48586F), lv.PART.MAIN | lv.STATE.DEFAULT)
+        )
+        btn.add_event_cb(self.btn_event_clicked_handler, lv.EVENT.CLICKED, None)
+        btn.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        btn.label.set_text('0')
+
+        self.ok = Image(self.btn_layout, src=self.NUMBER_ICON_SRC_FORMAT.format(10))
+        self.ok.add_flag(lv.obj.FLAG.CLICKABLE)
+        self.ok.add_event_cb(self.ok_event_clicked_handler, lv.EVENT.CLICKED, None)
+
+        self.add_event_cb(self.event_screen_loaded_handler, 39, None)
+        self.add_event_cb(self.event_screen_unloaded_handler, 40, None)
+
+    def event_screen_loaded_handler(self, event):
+        self.real_number = ''
+        self.number.set_text('')
+
+    def event_screen_unloaded_handler(self, event):
+        self.del_async()
+
+    def delete_event_clicked_handler(self, event):
+        logger.debug('{} delete_event_clicked_handler'.format(type(self).__name__))
+        self.real_number = self.real_number[:-1]
+        string = self.real_number
+        if len(string) > 14:
+            string = '{:.>14s}'.format(string[-11:])
+        self.number.set_text(string)
+
+    def btn_event_clicked_handler(self, event):
+        target = event.get_target()
+        logger.debug('{} number_event_clicked_handler, number is: {}'.format(type(self).__name__, target.label.get_text()))
+        self.real_number += str(target.label.get_text())
+        string = self.real_number
+        if len(string) > 14:
+            string = '{:.>14s}'.format(string[-11:])
+        self.number.set_text(string)
+
+    def ok_event_clicked_handler(self, event):
+        # TODO: 拨打电话
+        logger.debug('{} ok_event_clicked_handler')
