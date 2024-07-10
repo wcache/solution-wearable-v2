@@ -45,6 +45,7 @@ class MainTileView(TileView):
 
     def __init__(self):
         super().__init__(None)
+        self.remove_style(None, lv.PART.SCROLLBAR)
         self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
 
         self.tile00 = self.add_tile(0, 0, lv.DIR.RIGHT)

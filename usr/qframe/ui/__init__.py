@@ -189,7 +189,7 @@ class Gui(object):
         indev_drv = lv.indev_drv_t()
         indev_drv.init()
         indev_drv.type = lv.INDEV_TYPE.POINTER
-        # indev_drv.read_cb = tp.read
+        indev_drv.read_cb = tp.read
         indev_drv.long_press_time = 400  # 400，表示长按的时间阈值，即按住一个点的时间超过该值时，触发长按事件。
         indev_drv.scroll_limit = 10  # 10，表示在拖动对象之前，需要滑动的像素数。
         indev_drv.scroll_throw = 10  # 10，表示滚动减速的百分比，值越大则减速越快。
