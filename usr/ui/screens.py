@@ -2,7 +2,7 @@
 import lvgl as lv
 from usr.qframe.collections import Singleton, OrderedDict
 from usr.qframe.logging import getLogger
-from .widgets import Widget, Label, TileView, Image
+from .widgets import Widget, Label, TileView, Image, Line
 from .core import Style
 
 
@@ -325,3 +325,190 @@ class AppListScreen(Widget):
 
     def timer_event_clicked_cb(self, event):
         pass
+
+
+class Chart(Widget):
+    
+    def __init__(self, parent, measure_type):
+        super().__init__(
+            parent,
+            size=(240, 120),
+        )
+        self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.seps = []
+        self.sep_labels = []
+        for i in range(5):
+            line = Line(
+                self,
+                style_line_width=(1, lv.PART.MAIN | lv.STATE.DEFAULT),
+                style_line_rounded=(False, lv.PART.MAIN | lv.STATE.DEFAULT),
+                style_line_color=(lv.palette_main(lv.PALETTE.GREY), lv.PART.MAIN | lv.STATE.DEFAULT)
+            )
+            line.set_points(
+                [
+                    {
+                        "x": 55 * i,
+                        "y": 0
+                    },
+                    {
+                        "x": 55 * i,
+                        "y": 100
+                    },
+                ],
+                2
+            )
+            if i <= 3:
+                label = Label(
+                    self,
+                    text=str(i * 6),
+                    x=55 * i + 2,
+                    y=85,
+                    style_text_color=(lv.palette_main(lv.PALETTE.GREY), lv.PART.MAIN | lv.STATE.DEFAULT)
+                )
+                self.sep_labels.append(label)
+            else:
+                text = '85' if measure_type in (0, 1) else '35.3'
+                text2 = '100' if measure_type in (0, 1) else '41.0'
+                label = Label(
+                    self,
+                    text=text,
+                    x=55 * i - (25 if measure_type in (0, 1) else 30),
+                    y=85,
+                    style_text_color=(lv.palette_main(lv.PALETTE.RED), lv.PART.MAIN | lv.STATE.DEFAULT)
+                )
+                label2 = Label(
+                    self,
+                    text=text2,
+                    x=55 * i - 30,
+                    y=0,
+                    style_text_color=(lv.palette_main(lv.PALETTE.RED), lv.PART.MAIN | lv.STATE.DEFAULT)
+                )
+                self.sep_labels.append(label)
+                self.sep_labels.append(label2)
+
+            self.seps.append(line)
+
+        self.lines = []
+        for i in range(24):
+            line = Line(
+                self,
+                style_line_width=(3, lv.PART.MAIN | lv.STATE.DEFAULT),
+                style_line_rounded=(True, lv.PART.MAIN | lv.STATE.DEFAULT),
+                style_line_color=(lv.palette_main(lv.PALETTE.RED), lv.PART.MAIN | lv.STATE.DEFAULT)
+            )
+            self.lines.append(line)
+
+    def update(self, index, data):
+        bottom, top = data  # 0~100
+        self.lines[index].set_points(
+            [
+                {
+                    "x": index * 10,
+                    "y": 100 - bottom
+                },
+                {
+                    "x": index * 10,
+                    "y": 100 - top
+                },
+            ],
+            2
+        )
+
+
+class MeasurementScreen(Widget):
+    RT_ICON_SRC = 'E:/media/chevron-left-r.png'
+    measure_type = 0  # 0心率，1血氧，2体温
+
+    def __init__(self, parent=None):
+        super().__init__(
+            parent,
+            size=(240, 280)
+        )
+        self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        if self.measure_type == 0:
+            text = '心率'
+        elif self.measure_type == 1:
+            text = '血氧'
+        else:
+            text = '体温'
+        self.rt_icon = Image(self, src=self.RT_ICON_SRC, align=lv.ALIGN.TOP_LEFT)
+        self.rt_title = Label(self, text=text)
+        self.rt_title.set_style_text_color(lv.palette_main(lv.PALETTE.RED), lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.rt_title.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.rt_title.align_to(self.rt_icon, lv.ALIGN.OUT_RIGHT_MID, 5, 0)
+        self.time_label = Label(self, text='09:00', align=lv.ALIGN.TOP_RIGHT)
+
+        self.layout = Widget(
+            self,
+            size=(240, 250),
+            y=30,
+            layout=lv.LAYOUT_FLEX.value,
+            style_flex_flow=(lv.FLEX_FLOW.COLUMN, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_main_place=(lv.FLEX_ALIGN.START, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_cross_place=(lv.FLEX_ALIGN.START, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_track_place=(lv.FLEX_ALIGN.START, lv.PART.MAIN | lv.STATE.DEFAULT),
+        )
+        self.layout.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.title = Label(self.layout, text=text)
+        self.title.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.value = Label(self.layout, text='96', style_text_color=(lv.palette_main(lv.PALETTE.RED), lv.PART.MAIN | lv.STATE.DEFAULT))
+        self.value.add_style(arial55_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.value_unit = Label(self.layout, text=('%' if self.measure_type in (0, 1) else '℃'))
+        self.value_unit.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.value_unit.add_flag(lv.obj.FLAG.IGNORE_LAYOUT)
+        self.value_unit.align_to(self.value, lv.ALIGN.OUT_RIGHT_BOTTOM, 5, 0)
+        self.text = Label(self.layout, text='98%, 10分钟前')
+        self.text.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.text.set_style_text_color(lv.palette_main(lv.PALETTE.GREY), lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.chart = Chart(self.layout, self.measure_type)
+
+
+@Singleton
+class HRMeasurementScreen(MeasurementScreen):
+    measure_type = 0
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # for test
+        self.chart.update(9, (37, 70))
+        self.chart.update(10, (17, 70))
+        self.chart.update(11, (7, 50))
+        self.chart.update(12, (20, 60))
+        self.chart.update(13, (30, 50))
+        self.chart.update(14, (25, 40))
+        self.chart.update(15, (17, 36))
+
+
+@Singleton
+class SPOMeasurementScreen(MeasurementScreen):
+    measure_type = 1
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # for test
+        self.chart.update(9, (37, 70))
+        self.chart.update(10, (17, 70))
+        self.chart.update(11, (7, 50))
+        self.chart.update(12, (20, 60))
+        self.chart.update(13, (30, 50))
+        self.chart.update(14, (25, 40))
+        self.chart.update(15, (17, 36))
+
+
+@Singleton
+class TemperatureMeasurementScreen(MeasurementScreen):
+    measure_type = 2
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # for test
+        self.chart.update(9, (37, 70))
+        self.chart.update(10, (17, 70))
+        self.chart.update(11, (7, 50))
+        self.chart.update(12, (20, 60))
+        self.chart.update(13, (30, 50))
+        self.chart.update(14, (25, 40))
+        self.chart.update(15, (17, 36))
