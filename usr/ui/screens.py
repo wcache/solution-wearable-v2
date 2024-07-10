@@ -835,6 +835,7 @@ class StepSettingScreen(Widget):
         self.ok.add_flag(lv.OBJ_FLAG_FLEX_IN_NEW.TRACK)
         self.ok.set_style_text_color(lv.palette_main(lv.PALETTE.BLUE), lv.PART.MAIN | lv.STATE.DEFAULT)
         self.ok.set_style_bg_opa(lv.OPA._30, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.ok.set_style_bg_color(lv.palette_main(lv.PALETTE.GREY), lv.PART.MAIN | lv.STATE.DEFAULT)
         self.ok.add_event_cb(self.ok_event_clicked_handler, lv.EVENT.CLICKED, None)
 
     def plus_event_clicked_handler(self, event):
