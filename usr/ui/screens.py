@@ -48,7 +48,7 @@ class MainTileView(TileView):
         self.dial_plate = DialPlateScreen(self.tile00)
 
         self.tile10 = self.add_tile(1, 0, lv.DIR.LEFT | lv.DIR.RIGHT)
-        self.app_list = AppList1Screen(self.tile10)
+        self.pointer_plate = PointerPlateScreen(self.tile10)
 
 
 class StatusBar(Widget):
@@ -132,6 +132,48 @@ class DialPlateScreen(Widget):
         self.hour_low.set_src(self.H_IMG_FORMAT.format(hour_string[1]))
         self.minute_high.set_src(self.H_IMG_FORMAT.format(minute_string[0]))
         self.minute_low.set_src(self.H_IMG_FORMAT.format(minute_string[1]))
+
+
+@Singleton
+class PointerPlateScreen(Widget):
+    R_BG_IMG_SRC = 'E:/media/r-b.png'
+    R_H_BG_IMG_SRC = 'E:/media/r-h.png'
+    R_M_BG_IMG_SRC = 'E:/media/r-m.png'
+    R_S_BG_IMG_SRC = 'E:/media/r-s.png'
+    R_P_BG_IMG_SRC = 'E:/media/r-p.png'
+
+    def __init__(self, parent=None):
+        super().__init__(
+            parent,
+            size=(240, 280),
+            style_bg_color=(lv.color_black(), lv.PART.MAIN | lv.STATE.DEFAULT)
+        )
+        self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.status_bar = StatusBar(self)
+        self.bg = Image(self, src=self.R_BG_IMG_SRC, x=5, y=50)
+        # 原点
+        self.point = Image(self.bg, src=self.R_P_BG_IMG_SRC, align=lv.ALIGN.CENTER)
+        # 时针
+        self.hour_hand = Image(self.bg, src=self.R_H_BG_IMG_SRC)
+        self.hour_hand.align_to(self.point, lv.ALIGN.OUT_TOP_MID, 0, 12)
+        self.hour_hand.set_pivot(6, 46)
+        # 分针
+        self.minute_hand = Image(self.bg, src=self.R_M_BG_IMG_SRC)
+        self.minute_hand.align_to(self.point, lv.ALIGN.OUT_TOP_MID, 0, 12)
+        self.minute_hand.set_pivot(15, 109)
+        # 秒针
+        self.second_hand = Image(self.bg, src=self.R_S_BG_IMG_SRC)
+        self.second_hand.align_to(self.point, lv.ALIGN.OUT_TOP_MID, 0, 19)
+        self.second_hand.set_pivot(7, 106)
+
+    def update(self, hour, minute, second):
+        angle_for_second = second * 6  # 秒度
+        self.second_hand.set_angle(angle_for_second * 10)
+        angle_for_minute = minute * 6 + angle_for_second / 60  # 分度
+        self.minute_hand.set_angle(int(angle_for_minute * 10))
+        angle_for_hour = hour * 30 + angle_for_minute / 12  # 时度
+        self.hour_hand.set_angle(int(angle_for_hour * 10))
 
 
 @Singleton
