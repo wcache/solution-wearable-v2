@@ -1,6 +1,9 @@
 import lvgl as lv
-# from tp import cst816 as Cst816
+from tp import cst816 as Cst816
 from machine import Pin, LCD
+from usr.qframe.logging import getLogger
+
+logger = getLogger(__name__)
 
 
 # -------------LCD屏幕参数配置--------------
@@ -132,7 +135,7 @@ class Gui(object):
 
     def init(self):
         self.lcd = self.init_lcd()
-        # self.tp = self.init_tp()
+        self.tp = self.init_tp()
         self.lv, self.disp_drv, self.indev_drv = self.init_lvgl(self.lcd, self.tp)
 
     @staticmethod

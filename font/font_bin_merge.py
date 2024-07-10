@@ -35,4 +35,4 @@ def bin_create(*args):
 
 
 if __name__ == "__main__":
-    bin_create("16px.bin", '28px.bin', '56px.bin')
+    bin_create("arial18.bin", 'arial27.bin', 'arial55.bin')
