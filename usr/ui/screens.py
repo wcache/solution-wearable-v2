@@ -616,3 +616,165 @@ class KeypadScreen(Widget):
     def ok_event_clicked_handler(self, event):
         # TODO: 拨打电话
         logger.debug('{} ok_event_clicked_handler')
+
+
+class VoiceCallScreen(Widget):
+    CANCEL_ICON_SRC = 'E:/media/cancel.png'
+    RECV_ICON_SRC = 'E:/media/receive.png'
+
+    def __init__(self, parent=None, name='李琳', text='正在呼叫'):
+        super().__init__(parent, size=(240, 280))
+        self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.title = Label(self, text='电话', align=lv.ALIGN.TOP_LEFT)
+        self.title.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.time = Label(self, text='09:00', align=lv.ALIGN.TOP_RIGHT)
+
+        self.name = Label(self, text=name, align=lv.ALIGN.CENTER)
+        self.name.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.text = Label(self, text=text)
+        self.text.align_to(self.name, lv.ALIGN.OUT_BOTTOM_MID, 0, 10)
+        self.text.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.recv = Image(self, src=self.RECV_ICON_SRC)
+        self.recv.align(lv.ALIGN.BOTTOM_RIGHT, -10, -10)
+        self.recv.add_event_cb(self.recv_event_clicked_handler, lv.EVENT.CLICKED, None)
+
+        self.cancel = Image(self, src=self.CANCEL_ICON_SRC)
+        self.cancel.align(lv.ALIGN.BOTTOM_LEFT, 10, -10)
+        self.cancel.add_event_cb(self.cancel_event_clicked_handler, lv.EVENT.CLICKED, None)
+
+    def recv_event_clicked_handler(self, event):
+        pass
+
+    def cancel_event_clicked_handler(self, event):
+        pass
+
+
+class StepChart(Widget):
+
+    def __init__(self, parent):
+        super().__init__(
+            parent,
+            size=(240, 130),
+        )
+        self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.bg_list = []
+        self.lines = []
+        for i in range(24):
+            bg_line = Line(
+                self,
+                x=i * 5 + 2,
+                y=5,
+                style_line_width=(5, lv.PART.MAIN | lv.STATE.DEFAULT),
+                style_line_rounded=(True, lv.PART.MAIN | lv.STATE.DEFAULT),
+                style_line_color=(lv.palette_main(lv.PALETTE.GREY), lv.PART.MAIN | lv.STATE.DEFAULT)
+            )
+            bg_line.move_background()
+            bg_line.set_points(
+                [
+                    {
+                        "x": i * 5 + 2,
+                        "y": 0
+                    },
+                    {
+                        "x": i * 5 + 2,
+                        "y": 100
+                    }
+                ],
+                2
+            )
+            self.bg_list.append(bg_line)
+
+            line = Line(
+                self,
+                x=i * 5 + 2,
+                y=5,
+                style_line_width=(5, lv.PART.MAIN | lv.STATE.DEFAULT),
+                style_line_rounded=(True, lv.PART.MAIN | lv.STATE.DEFAULT),
+                style_line_color=(lv.palette_main(lv.PALETTE.BLUE), lv.PART.MAIN | lv.STATE.DEFAULT)
+            )
+            line.set_points(
+                [
+                    {
+                        "x": i * 5 + 2,
+                        "y": 50
+                    },
+                    {
+                        "x": i * 5 + 2,
+                        "y": 100
+                    }
+                ],
+                2
+            )
+            self.lines.append(line)
+
+        self.text1 = Label(self, text='0:00', align=lv.ALIGN.BOTTOM_LEFT)
+        self.text2 = Label(self, text='12:00', align=lv.ALIGN.BOTTOM_MID)
+        self.text3 = Label(self, text='24:00', align=lv.ALIGN.BOTTOM_RIGHT)
+
+    def update(self, index, value):
+        self.lines[index].set_points(
+            [
+                {
+                    "x": index * 5 + 2,
+                    "y": 100
+                },
+                {
+                    "x": index * 5 + 2,
+                    "y": 100 - value
+                }
+            ],
+            2
+        )
+
+
+@Singleton
+class StepScreen(Widget):
+    RT_ICON_SRC = 'E:/media/chevron-left.png'
+
+    def __init__(self, parent=None):
+        super().__init__(parent, size=(240, 280))
+
+        self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.rt_icon = Image(self, src=self.RT_ICON_SRC, align=lv.ALIGN.TOP_LEFT)
+        self.rt_title = Label(self, text='步数')
+        self.rt_title.set_style_text_color(lv.palette_main(lv.PALETTE.BLUE), lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.rt_title.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.rt_title.align_to(self.rt_icon, lv.ALIGN.OUT_RIGHT_MID, 5, 0)
+        self.time_label = Label(self, text='09:00', align=lv.ALIGN.TOP_RIGHT)
+
+        self.layout = Widget(
+            self,
+            size=(240, 250),
+            y=30,
+            layout=lv.LAYOUT_FLEX.value,
+            style_flex_flow=(lv.FLEX_FLOW.COLUMN, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_main_place=(lv.FLEX_ALIGN.START, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_cross_place=(lv.FLEX_ALIGN.START, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_track_place=(lv.FLEX_ALIGN.START, lv.PART.MAIN | lv.STATE.DEFAULT),
+        )
+        self.layout.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.title = Label(self.layout, text='总步数')
+        self.title.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.value = Label(self.layout, text='12345', style_text_color=(lv.palette_main(lv.PALETTE.BLUE), lv.PART.MAIN | lv.STATE.DEFAULT))
+        self.value.add_style(arial55_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.value_unit = Label(self.layout, text='步')
+        self.value_unit.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.value_unit.add_flag(lv.obj.FLAG.IGNORE_LAYOUT)
+        self.value_unit.align_to(self.value, lv.ALIGN.OUT_RIGHT_BOTTOM, 5, 0)
+        self.text = Label(self.layout, text='建议每日行走8000步')
+        self.text.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.text.set_style_text_color(lv.palette_main(lv.PALETTE.GREY), lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.chart = StepChart(self.layout)
+
+        # for test
+        import urandom
+        for i in range(24):
+            value = urandom.randint(10, 100)
+            self.chart.update(i, value)
