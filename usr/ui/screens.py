@@ -190,20 +190,49 @@ class WatchFaceScreen(Widget):
 
 
 @Singleton
-class AppList1Screen(Widget):
+class SleepModeScreen(Widget):
+    NOTICE_ICON_SRC = 'E:/media/bell-03.png'
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.set_size(240, 280)
+    def __init__(self, parent=None):
+        super().__init__(
+            parent,
+            size=(240, 280),
+            style_bg_color=(lv.color_black(), lv.PART.MAIN | lv.STATE.DEFAULT)
+        )
         self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
-        self.text = Label(self, text=type(self).__name__)
 
+        self.time = Label(self, text='{:02d}:{:02d}'.format(0, 0), align=lv.ALIGN.CENTER, y=-50)
+        self.time.add_style(arial55_style, lv.PART.MAIN | lv.STATE.DEFAULT)
 
-@Singleton
-class AppList2Screen(Widget):
+        self.date = Label(self, text='{:02d}月{:02d}日'.format(0, 0))
+        self.date.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.date.align_to(self.time, lv.ALIGN.OUT_BOTTOM_LEFT, 0, 0)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.set_size(240, 280)
-        self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
-        self.text = Label(self, text=type(self).__name__)
+        self.weekday = Label(self, text=WEEKDAY_MAP[0])
+        self.weekday.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.weekday.align_to(self.time, lv.ALIGN.OUT_BOTTOM_RIGHT, 0, 0)
+
+        self.notice = Widget(
+            self,
+            size=(130, 30),
+            style_border_width=(1, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_border_color=(lv.color_white(), lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_pad_all=(0, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_outline_width=(0, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_text_color=(lv.color_white(), lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_radius=(20, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_bg_color=(lv.color_black(), lv.PART.MAIN | lv.STATE.DEFAULT)
+        )
+        self.notice.align_to(self.time, lv.ALIGN.BOTTOM_MID, 0, 60)
+        self.notice_img = Image(self.notice, src=self.NOTICE_ICON_SRC, align=lv.ALIGN.LEFT_MID, x=10)
+        self.notice_text = Label(self.notice, text='暂无通知', align=lv.ALIGN.CENTER)
+        self.notice_text.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.notice_text.align_to(self.notice_img, lv.ALIGN.OUT_RIGHT_MID, 5, 0)
+
+    def set_datetime(self, month, day, hour, minute, weekday):
+        self.time.set_text('{:02d}:{:02d}'.format(hour, minute))
+        self.date.set_text='{:02d}月{:02d}日'.format(month, day)
+        self.weekday.set_text(WEEKDAY_MAP[weekday])
+
+    def set_notice_text(self, text):
+        self.notice_text.set_text(text)
