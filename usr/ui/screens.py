@@ -871,13 +871,13 @@ class CountDownSettingScreen(Widget):
         )
         self.layout.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
 
-        self.hours_label = Label(self.layout, text='小时')
+        self.hours_label = Label(self.layout, text='小时', style_text_color=(lv.palette_main(lv.PALETTE.YELLOW), lv.PART.MAIN | lv.STATE.DEFAULT))
         self.hours_label.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
 
-        self.minutes_label = Label(self.layout, text='分钟')
+        self.minutes_label = Label(self.layout, text='分钟', style_text_color=(lv.palette_main(lv.PALETTE.YELLOW), lv.PART.MAIN | lv.STATE.DEFAULT))
         self.minutes_label.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
 
-        self.seconds_label = Label(self.layout, text='秒')
+        self.seconds_label = Label(self.layout, text='秒', style_text_color=(lv.palette_main(lv.PALETTE.YELLOW), lv.PART.MAIN | lv.STATE.DEFAULT))
         self.seconds_label.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
 
         self.roller_hours = Roller(
