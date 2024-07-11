@@ -1017,6 +1017,8 @@ class CountDownScreen(Widget):
         self.rt_label = Label(self, text='倒计时', style_text_color=(lv.palette_main(lv.PALETTE.YELLOW), lv.PART.MAIN | lv.STATE.DEFAULT))
         self.rt_label.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
         self.rt_label.align_to(self.rt_img, lv.ALIGN.OUT_RIGHT_MID, 5, 0)
+        self.rt_label.add_flag(lv.obj.FLAG.CLICKABLE)
+        self.rt_label.add_event_cb(self.rt_event_clicked_handler, lv.EVENT.CLICKED, None)
         self.time = Label(self, text='09:00', align=lv.ALIGN.TOP_RIGHT)
 
         self.arc = Arc(
@@ -1083,6 +1085,9 @@ class CountDownScreen(Widget):
 
     def anim_ready_cb(self, anim):
         self.anim = None
+
+    def rt_event_clicked_handler(self, event):
+        CountDownSettingScreen().load()
 
 
 class AlarmItem(Image):
