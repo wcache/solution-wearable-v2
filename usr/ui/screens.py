@@ -1035,5 +1035,5 @@ class CountDownScreen(Widget):
         self.arc.set_value(value)
         self.remaining.set_text('{:02d}:{:02d}'.format(self.total_seconds // 60, self.total_seconds % 60))
         self.total_seconds -= 1
-        if self.total_seconds == 0:
+        if self.total_seconds < 0:
             self.timer.set_repeat_count(0)
