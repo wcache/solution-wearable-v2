@@ -2,7 +2,7 @@
 import lvgl as lv
 from usr.qframe.collections import Singleton, OrderedDict
 from usr.qframe.logging import getLogger
-from .widgets import Widget, Label, TileView, Image, Line, Button
+from .widgets import Widget, Label, TileView, Image, Line, Button, Roller
 from .core import Style
 
 
@@ -841,6 +841,127 @@ class StepSettingScreen(Widget):
         value = int(self.target.get_text())
         value -= 500
         self.target.set_text(str(value))
+
+    def ok_event_clicked_handler(self, event):
+        print('{} ok_event_clicked_handler'.format(type(self).__name__))
+
+
+class CountDownSettingScreen(Widget):
+    RT_ICON_SRC = 'E:/media/chevron-left-y.png'
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.rt_img = Image(self, src=self.RT_ICON_SRC, align=lv.ALIGN.TOP_LEFT)
+        self.rt_label = Label(self, text='设置', style_text_color=(lv.palette_main(lv.PALETTE.YELLOW), lv.PART.MAIN | lv.STATE.DEFAULT))
+        self.rt_label.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.rt_label.align_to(self.rt_img, lv.ALIGN.OUT_RIGHT_MID, 5, 0)
+        self.time = Label(self, text='09:00', align=lv.ALIGN.TOP_RIGHT)
+
+        self.layout = Widget(
+            self,
+            size=(240, 250),
+            y=30,
+            layout=lv.LAYOUT_FLEX.value,
+            style_flex_flow=(lv.FLEX_FLOW.ROW_WRAP, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_main_place=(lv.FLEX_ALIGN.SPACE_EVENLY, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_cross_place=(lv.FLEX_ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_track_place=(lv.FLEX_ALIGN.SPACE_EVENLY, lv.PART.MAIN | lv.STATE.DEFAULT),
+        )
+        self.layout.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.hours_label = Label(self.layout, text='小时')
+        self.hours_label.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.minutes_label = Label(self.layout, text='分钟')
+        self.minutes_label.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.seconds_label = Label(self.layout, text='秒')
+        self.seconds_label.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.roller_hours = Roller(
+            self.layout,
+            options=("\n".join(['{:02d}'.format(hour) for hour in range(24)]), lv.roller.MODE.NORMAL),
+            visible_row_count=3,
+            style_border_width=(0, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_text_color=(lv.color_white(), lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_bg_color=(lv.color_black(), lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_bg_opa=(lv.OPA.TRANSP, lv.PART.SELECTED | lv.STATE.DEFAULT),
+            style_pad_all=(0, lv.PART.MAIN | lv.STATE.DEFAULT)
+        )
+        self.roller_hours.add_flag(lv.OBJ_FLAG_FLEX_IN_NEW.TRACK)
+        self.roller_hours.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.roller_hours.add_style(arial55_style, lv.PART.SELECTED | lv.STATE.DEFAULT)
+        self.roller_hours.set_style_text_opa(lv.OPA.COVER, lv.PART.SELECTED | lv.STATE.DEFAULT)
+        self.roller_hours.set_style_text_opa(lv.OPA._80, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.roller_hours.add_event_cb(
+            lambda event: print('roller_hours VALUE_CHANGED'),
+            lv.EVENT.VALUE_CHANGED,
+            None
+        )
+        self.sep1 = Label(self.layout, text=':')
+        self.sep1.add_style(arial55_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.roller_minutes = Roller(
+            self.layout,
+            options=("\n".join(['{:02d}'.format(hour) for hour in range(60)]), lv.roller.MODE.NORMAL),
+            visible_row_count=3,
+            style_border_width=(0, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_text_color=(lv.color_white(), lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_bg_color=(lv.color_black(), lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_bg_opa=(lv.OPA.TRANSP, lv.PART.SELECTED | lv.STATE.DEFAULT),
+            style_pad_all=(0, lv.PART.MAIN | lv.STATE.DEFAULT)
+        )
+        self.roller_minutes.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.roller_minutes.add_style(arial55_style, lv.PART.SELECTED | lv.STATE.DEFAULT)
+        self.roller_minutes.set_style_text_opa(lv.OPA.COVER, lv.PART.SELECTED | lv.STATE.DEFAULT)
+        self.roller_minutes.set_style_text_opa(lv.OPA._80, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.roller_minutes.add_event_cb(
+            lambda event: print('roller_minutes VALUE_CHANGED'),
+            lv.EVENT.VALUE_CHANGED,
+            None
+        )
+        self.sep2 = Label(self.layout, text=':')
+        self.sep2.add_style(arial55_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.roller_seconds = Roller(
+            self.layout,
+            options=("\n".join(['{:02d}'.format(hour) for hour in range(60)]), lv.roller.MODE.NORMAL),
+            visible_row_count=3,
+            style_border_width=(0, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_text_color=(lv.color_white(), lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_bg_color=(lv.color_black(), lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_bg_opa=(lv.OPA.TRANSP, lv.PART.SELECTED | lv.STATE.DEFAULT),
+            style_pad_all=(0, lv.PART.MAIN | lv.STATE.DEFAULT)
+        )
+        self.roller_seconds.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.roller_seconds.add_style(arial55_style, lv.PART.SELECTED | lv.STATE.DEFAULT)
+        self.roller_seconds.set_style_text_opa(lv.OPA.COVER, lv.PART.SELECTED | lv.STATE.DEFAULT)
+        self.roller_seconds.set_style_text_opa(lv.OPA._80, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.roller_seconds.add_event_cb(
+            lambda event: print('roller_seconds VALUE_CHANGED'),
+            lv.EVENT.VALUE_CHANGED,
+            None
+        )
+
+        self.cancel = Button(self.layout, text='取消', size=(100, 50))
+        self.cancel.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.cancel.add_flag(lv.OBJ_FLAG_FLEX_IN_NEW.TRACK)
+        self.cancel.set_style_text_color(lv.palette_main(lv.PALETTE.GREY), lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.cancel.set_style_bg_opa(lv.OPA._30, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.cancel.set_style_bg_color(lv.palette_main(lv.PALETTE.GREY), lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.cancel.add_event_cb(self.cancel_event_clicked_handler, lv.EVENT.CLICKED, None)
+
+        self.ok = Button(self.layout, text='开始', size=(100, 50))
+        self.ok.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.ok.set_style_text_color(lv.palette_main(lv.PALETTE.BLUE), lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.ok.set_style_bg_opa(lv.OPA._30, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.ok.set_style_bg_color(lv.palette_main(lv.PALETTE.YELLOW), lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.ok.add_event_cb(self.ok_event_clicked_handler, lv.EVENT.CLICKED, None)
+
+    def cancel_event_clicked_handler(self, event):
+        print('{} cancel_event_clicked_handler'.format(type(self).__name__))
 
     def ok_event_clicked_handler(self, event):
         print('{} ok_event_clicked_handler'.format(type(self).__name__))
