@@ -457,7 +457,6 @@ class MeasurementScreen(Widget):
         self.chart = Chart(self.layout, bottom_text, top_text, color)
 
 
-@Singleton
 class HRMeasurementScreen(MeasurementScreen):
     measure_type = 0
 
@@ -474,7 +473,6 @@ class HRMeasurementScreen(MeasurementScreen):
         self.chart.update(15, (27, 56))
 
 
-@Singleton
 class SPOMeasurementScreen(MeasurementScreen):
     measure_type = 1
 
@@ -491,7 +489,6 @@ class SPOMeasurementScreen(MeasurementScreen):
         self.chart.update(15, (27, 56))
 
 
-@Singleton
 class TemperatureMeasurementScreen(MeasurementScreen):
     measure_type = 2
 
@@ -508,7 +505,6 @@ class TemperatureMeasurementScreen(MeasurementScreen):
         self.chart.update(15, (27, 56))
 
 
-@Singleton
 class KeypadScreen(Widget):
     RT_ICON_SRC = 'E:/media/chevron-left.png'
     DEL_IMG_SRC = 'E:/media/delete.png'
@@ -732,7 +728,6 @@ class StepChart(Widget):
         )
 
 
-@Singleton
 class StepScreen(Widget):
     RT_ICON_SRC = 'E:/media/chevron-left.png'
 
@@ -780,7 +775,6 @@ class StepScreen(Widget):
             self.chart.update(i, value)
 
 
-@Singleton
 class StepSettingScreen(Widget):
 
     def __init__(self, parent=None):
@@ -849,4 +843,4 @@ class StepSettingScreen(Widget):
         self.target.set_text(str(value))
 
     def ok_event_clicked_handler(self, event):
-        pass
+        print('{} ok_event_clicked_handler'.format(type(self).__name__))
