@@ -3,7 +3,7 @@ import lvgl as lv
 from usr.qframe.collections import Singleton, OrderedDict
 from usr.qframe.logging import getLogger
 from .widgets import Widget, Label, TileView, Image, Line, Button, Roller, Arc
-from .core import Style
+from .core import Style, Anim
 
 
 logger = getLogger(__name__)
@@ -982,9 +982,8 @@ class CountDownScreen(Widget):
 
         self.arc = Arc(
             self,
-            value=100,
             size=(200, 200),
-            range=(0, 100),
+            range=(0, 1000),
             rotation=270,
             bg_angles=(0, 360),
             style_arc_color=(lv.palette_main(lv.PALETTE.ORANGE), lv.PART.INDICATOR | lv.STATE.DEFAULT)
@@ -992,6 +991,7 @@ class CountDownScreen(Widget):
         self.arc.center()
         self.arc.remove_style(None, lv.PART.KNOB)
         self.arc.clear_flag(lv.obj.FLAG.CLICKABLE)
+        self.arc.set_value(1000)
 
         self.total = Label(self.arc, text='1分钟')
         self.total.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
@@ -1016,24 +1016,31 @@ class CountDownScreen(Widget):
         self.ok.set_style_bg_color(lv.palette_main(lv.PALETTE.YELLOW), lv.PART.MAIN | lv.STATE.DEFAULT)
         self.ok.add_event_cb(self.ok_event_clicked_handler, lv.EVENT.CLICKED, None)
 
-        self.timer = None
         self.total_seconds = 60
+        self.anim = None
 
     def cancel_event_clicked_handler(self, event):
         print('{} cancel_event_clicked_handler'.format(type(self).__name__))
-        if self.timer:
-            self.timer.set_repeat_count(0)
+        if self.anim:
+            lv.anim_del_all()
+            self.anim = None
 
     def ok_event_clicked_handler(self, event):
         print('{} ok_event_clicked_handler'.format(type(self).__name__))
-        if self.timer:
+        if self.anim:
             return
-        self.timer = lv.timer_create(self.timer_cb, 1000, None)
+        self.anim = Anim(
+            var=self.arc,
+            values=(1000, 0),
+            time=self.total_seconds * 1000,
+            custom_exec_cb=self.anim_custom_exec_cb,
+            ready_cb=self.anim_ready_cb
+        )
+        self.anim.start()
 
-    def timer_cb(self, timer):
-        value = int((100 / 60) * self.total_seconds)
+    def anim_custom_exec_cb(self, anim, value):
         self.arc.set_value(value)
-        self.remaining.set_text('{:02d}:{:02d}'.format(self.total_seconds // 60, self.total_seconds % 60))
-        self.total_seconds -= 1
-        if self.total_seconds < 0:
-            self.timer.set_repeat_count(0)
+        self.remaining.set_text('{:02d}:{:02d}'.format(int(value * 0.06) // 60, int(value * 0.06) % 60))
+
+    def anim_ready_cb(self, anim):
+        self.anim = None
