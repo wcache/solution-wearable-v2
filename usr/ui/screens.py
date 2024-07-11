@@ -2,7 +2,7 @@
 import lvgl as lv
 from usr.qframe.collections import Singleton, OrderedDict
 from usr.qframe.logging import getLogger
-from .widgets import Widget, Label, TileView, Image, Line, Button, Roller
+from .widgets import Widget, Label, TileView, Image, Line, Button, Roller, Arc
 from .core import Style
 
 
@@ -965,3 +965,75 @@ class CountDownSettingScreen(Widget):
 
     def ok_event_clicked_handler(self, event):
         print('{} ok_event_clicked_handler'.format(type(self).__name__))
+
+
+class CountDownScreen(Widget):
+    RT_ICON_SRC = 'E:/media/chevron-left-y.png'
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.rt_img = Image(self, src=self.RT_ICON_SRC, align=lv.ALIGN.TOP_LEFT)
+        self.rt_label = Label(self, text='倒计时', style_text_color=(lv.palette_main(lv.PALETTE.YELLOW), lv.PART.MAIN | lv.STATE.DEFAULT))
+        self.rt_label.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.rt_label.align_to(self.rt_img, lv.ALIGN.OUT_RIGHT_MID, 5, 0)
+        self.time = Label(self, text='09:00', align=lv.ALIGN.TOP_RIGHT)
+
+        self.arc = Arc(
+            self,
+            value=100,
+            size=(200, 200),
+            range=(0, 100),
+            rotation=270,
+            bg_angles=(0, 360),
+            style_arc_color=(lv.palette_main(lv.PALETTE.ORANGE), lv.PART.INDICATOR | lv.STATE.DEFAULT)
+        )
+        self.arc.center()
+        self.arc.remove_style(None, lv.PART.KNOB)
+        self.arc.clear_flag(lv.obj.FLAG.CLICKABLE)
+
+        self.total = Label(self.arc, text='1分钟')
+        self.total.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.total.align(lv.ALIGN.CENTER, 0, -40)
+        self.remaining = Label(self.arc, text='01:00')
+        self.remaining.add_style(arial55_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.remaining.align(lv.ALIGN.CENTER, 0, 0)
+
+        self.cancel = Button(self, text='取消', size=(100, 50))
+        self.cancel.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.cancel.set_style_align(lv.ALIGN.BOTTOM_LEFT, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.cancel.set_style_text_color(lv.palette_main(lv.PALETTE.GREY), lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.cancel.set_style_bg_opa(lv.OPA._30, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.cancel.set_style_bg_color(lv.palette_main(lv.PALETTE.GREY), lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.cancel.add_event_cb(self.cancel_event_clicked_handler, lv.EVENT.CLICKED, None)
+
+        self.ok = Button(self, text='开始', size=(100, 50))
+        self.ok.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.ok.set_style_align(lv.ALIGN.BOTTOM_RIGHT, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.ok.set_style_text_color(lv.palette_main(lv.PALETTE.BLUE), lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.ok.set_style_bg_opa(lv.OPA._30, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.ok.set_style_bg_color(lv.palette_main(lv.PALETTE.YELLOW), lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.ok.add_event_cb(self.ok_event_clicked_handler, lv.EVENT.CLICKED, None)
+
+        self.timer = None
+        self.total_seconds = 60
+
+    def cancel_event_clicked_handler(self, event):
+        print('{} cancel_event_clicked_handler'.format(type(self).__name__))
+        if self.timer:
+            self.timer.set_repeat_count(0)
+
+    def ok_event_clicked_handler(self, event):
+        print('{} ok_event_clicked_handler'.format(type(self).__name__))
+        if self.timer:
+            return
+        self.timer = lv.timer_create(self.timer_cb, 1000, None)
+
+    def timer_cb(self, timer):
+        value = int((100 / 60) * self.total_seconds)
+        self.arc.set_value(value)
+        self.remaining.set_text('{:02d}:{:02d}'.format(self.total_seconds // 60, self.total_seconds % 60))
+        self.total_seconds -= 1
+        if self.total_seconds == 0:
+            self.timer.set_repeat_count(0)
