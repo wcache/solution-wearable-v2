@@ -2,7 +2,7 @@
 import lvgl as lv
 from usr.qframe.collections import Singleton, OrderedDict
 from usr.qframe.logging import getLogger
-from .widgets import Widget, Label, TileView, Image, Line, Button, Roller, Arc
+from .widgets import Widget, Label, TileView, Image, Line, Button, Roller, Arc, Switch
 from .core import Style, Anim
 
 
@@ -1044,3 +1044,137 @@ class CountDownScreen(Widget):
 
     def anim_ready_cb(self, anim):
         self.anim = None
+
+
+class AlarmItem(Image):
+    RECT_ICON_SRC = 'E:/media/rectangle_57.png'
+
+    def __init__(self, parent):
+        super().__init__(parent, src=self.RECT_ICON_SRC)
+        self.time = Label(self, text='08:00', align=lv.ALIGN.TOP_LEFT)
+        self.time.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.weekdays = Label(self, text='一二三四五六日', align=lv.ALIGN.BOTTOM_LEFT)
+        self.weekdays.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.switch = Switch(self, align=lv.ALIGN.RIGHT_MID)
+        self.switch.add_event_cb(self.switch_event_clicked_handler, lv.EVENT.VALUE_CHANGED, None)
+
+    def switch_event_clicked_handler(self, event):
+        print('{} switch_event_clicked_handler'.format(type(self).__name__))
+
+
+class AlarmScreen(Widget):
+    ADD_ICON_SRC = 'E:/media/add_clock.png'
+    RT_ICON_SRC = 'E:/media/chevron-left-y.png'
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.rt_img = Image(self, src=self.RT_ICON_SRC, align=lv.ALIGN.TOP_LEFT)
+        self.rt_label = Label(self, text='闹钟', style_text_color=(lv.palette_main(lv.PALETTE.YELLOW), lv.PART.MAIN | lv.STATE.DEFAULT))
+        self.rt_label.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.rt_label.align_to(self.rt_img, lv.ALIGN.OUT_RIGHT_MID, 5, 0)
+        self.time = Label(self, text='09:00', align=lv.ALIGN.TOP_RIGHT)
+
+        self.layout = Widget(
+            self,
+            size=(240, 200),
+            y=30,
+            layout=lv.LAYOUT_FLEX.value,
+            style_flex_flow=(lv.FLEX_FLOW.COLUMN, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_main_place=(lv.FLEX_ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_cross_place=(lv.FLEX_ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_track_place=(lv.FLEX_ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT),
+        )
+        self.layout.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.a1 = AlarmItem(self.layout)
+        self.a2 = AlarmItem(self.layout)
+
+        self.add_icon = Image(self, src=self.ADD_ICON_SRC, align=lv.ALIGN.BOTTOM_MID)
+        self.add_icon.add_flag(lv.obj.FLAG.CLICKABLE)
+        self.add_icon.add_event_cb(self.add_event_clicked_handler, lv.EVENT.CLICKED, None)
+
+    def add_event_clicked_handler(self, event):
+        print('{} add_event_clicked_handler'.format(type(self).__name__))
+
+
+class AlarmSettingScreen(Widget):
+    RT_ICON_SRC = 'E:/media/chevron-left-y.png'
+    BTN_ICON_SRC = 'E:/media/rectangle_57.png'
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        super().__init__(parent)
+        self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.rt_img = Image(self, src=self.RT_ICON_SRC, align=lv.ALIGN.TOP_LEFT)
+        self.rt_label = Label(self, text='添加闹钟', style_text_color=(lv.palette_main(lv.PALETTE.YELLOW), lv.PART.MAIN | lv.STATE.DEFAULT))
+        self.rt_label.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.rt_label.align_to(self.rt_img, lv.ALIGN.OUT_RIGHT_MID, 5, 0)
+        self.time = Label(self, text='09:00', align=lv.ALIGN.TOP_RIGHT)
+
+        self.layout = Widget(
+            self,
+            size=(240, 150),
+            y=30,
+            layout=lv.LAYOUT_FLEX.value,
+            style_flex_flow=(lv.FLEX_FLOW.ROW_WRAP, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_main_place=(lv.FLEX_ALIGN.SPACE_EVENLY, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_cross_place=(lv.FLEX_ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_track_place=(lv.FLEX_ALIGN.SPACE_EVENLY, lv.PART.MAIN | lv.STATE.DEFAULT),
+        )
+        self.layout.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.roller_hours = Roller(
+            self.layout,
+            options=("\n".join(['{:02d}'.format(hour) for hour in range(24)]), lv.roller.MODE.NORMAL),
+            visible_row_count=3,
+            style_border_width=(0, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_text_color=(lv.color_white(), lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_bg_color=(lv.color_black(), lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_bg_opa=(lv.OPA.TRANSP, lv.PART.SELECTED | lv.STATE.DEFAULT),
+            style_pad_all=(0, lv.PART.MAIN | lv.STATE.DEFAULT)
+        )
+        self.roller_hours.add_flag(lv.OBJ_FLAG_FLEX_IN_NEW.TRACK)
+        self.roller_hours.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.roller_hours.add_style(arial55_style, lv.PART.SELECTED | lv.STATE.DEFAULT)
+        self.roller_hours.set_style_text_opa(lv.OPA.COVER, lv.PART.SELECTED | lv.STATE.DEFAULT)
+        self.roller_hours.set_style_text_opa(lv.OPA._80, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.roller_hours.add_event_cb(
+            lambda event: print('roller_hours VALUE_CHANGED'),
+            lv.EVENT.VALUE_CHANGED,
+            None
+        )
+        self.sep = Label(self.layout, text=':')
+        self.sep.add_style(arial55_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.roller_minutes = Roller(
+            self.layout,
+            options=("\n".join(['{:02d}'.format(hour) for hour in range(60)]), lv.roller.MODE.NORMAL),
+            visible_row_count=3,
+            style_border_width=(0, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_text_color=(lv.color_white(), lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_bg_color=(lv.color_black(), lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_bg_opa=(lv.OPA.TRANSP, lv.PART.SELECTED | lv.STATE.DEFAULT),
+            style_pad_all=(0, lv.PART.MAIN | lv.STATE.DEFAULT)
+        )
+        self.roller_minutes.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.roller_minutes.add_style(arial55_style, lv.PART.SELECTED | lv.STATE.DEFAULT)
+        self.roller_minutes.set_style_text_opa(lv.OPA.COVER, lv.PART.SELECTED | lv.STATE.DEFAULT)
+        self.roller_minutes.set_style_text_opa(lv.OPA._80, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.roller_minutes.add_event_cb(
+            lambda event: print('roller_minutes VALUE_CHANGED'),
+            lv.EVENT.VALUE_CHANGED,
+            None
+        )
+
+        self.btn1 = Image(self, src=self.BTN_ICON_SRC)
+        self.btn1.align_to(self.layout, lv.ALIGN.OUT_BOTTOM_MID, 0, 0)
+        self.btn1label = Label(self.btn1, text='设置重复模式')
+        self.btn1label.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.btn1label.set_align(lv.ALIGN.CENTER)
+        self.btn2 = Image(self, src=self.BTN_ICON_SRC)
+        self.btn2.align_to(self.layout, lv.ALIGN.OUT_BOTTOM_MID, 0, 55)
+        self.btn2label = Label(self.btn2, text='删除闹钟')
+        self.btn2label.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.btn2label.set_align(lv.ALIGN.CENTER)
+        self.btn2label.set_style_text_color(lv.palette_main(lv.PALETTE.RED), lv.PART.MAIN | lv.STATE.DEFAULT)
