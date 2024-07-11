@@ -263,10 +263,29 @@ class AppGridScreen(Widget):
             style_bg_color=(lv.color_black(), lv.PART.MAIN | lv.STATE.DEFAULT)
         )
         self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
         self.hr = Image(self, src=self.HR_IMG_SRC)
+        self.hr.add_flag(lv.obj.FLAG.CLICKABLE)
+        self.hr.add_event_cb(self.hr_event_clicked_handler, lv.EVENT.CLICKED, None)
+
         self.phone = Image(self, src=self.PHONE_IMG_SRC)
+        self.phone.add_flag(lv.obj.FLAG.CLICKABLE)
+        self.phone.add_event_cb(self.phone_event_clicked_handler, lv.EVENT.CLICKED, None)
+
         self.timer = Image(self, src=self.TIMER_IMG_SRC)
+        self.timer.add_flag(lv.obj.FLAG.CLICKABLE)
+        self.timer.add_event_cb(self.timer_event_clicked_handler, lv.EVENT.CLICKED, None)
+
         self.wechat = Image(self, src=self.WECHAT_IMG_SRC)
+
+    def hr_event_clicked_handler(self, event):
+        HRMeasurementScreen().load()
+
+    def phone_event_clicked_handler(self, event):
+        KeypadScreen().load()
+
+    def timer_event_clicked_handler(self, event):
+        CountDownSettingScreen().load()
 
 
 class ListItemBox(Widget):
@@ -429,6 +448,9 @@ class MeasurementScreen(Widget):
         self.rt_title.set_style_text_color(color, lv.PART.MAIN | lv.STATE.DEFAULT)
         self.rt_title.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
         self.rt_title.align_to(self.rt_icon, lv.ALIGN.OUT_RIGHT_MID, 5, 0)
+        self.rt_title.add_flag(lv.obj.FLAG.CLICKABLE)
+        self.rt_title.add_event_cb(self.rt_event_clicked_handler, lv.EVENT.CLICKED, None)
+
         self.time_label = Label(self, text='09:00', align=lv.ALIGN.TOP_RIGHT)
 
         self.layout = Widget(
@@ -455,6 +477,9 @@ class MeasurementScreen(Widget):
         self.text.set_style_text_color(lv.palette_main(lv.PALETTE.GREY), lv.PART.MAIN | lv.STATE.DEFAULT)
 
         self.chart = Chart(self.layout, bottom_text, top_text, color)
+
+    def rt_event_clicked_handler(self, event):
+        MainTileView().load()
 
 
 class HRMeasurementScreen(MeasurementScreen):
@@ -515,6 +540,11 @@ class KeypadScreen(Widget):
         self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
 
         self.rt_icon = Image(self, src=self.RT_ICON_SRC, align=lv.ALIGN.TOP_LEFT)
+        self.rt_label = Label(self, text='电话', style_text_color=(lv.palette_main(lv.PALETTE.YELLOW), lv.PART.MAIN | lv.STATE.DEFAULT))
+        self.rt_label.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.rt_label.align_to(self.rt_icon, lv.ALIGN.OUT_RIGHT_MID, 5, 0)
+        self.rt_label.add_flag(lv.obj.FLAG.CLICKABLE)
+        self.rt_label.add_event_cb(self.rt_event_clicked_handler, lv.EVENT.CLICKED, None)
 
         self.number_area = Widget(
             self,
@@ -612,6 +642,9 @@ class KeypadScreen(Widget):
     def ok_event_clicked_handler(self, event):
         # TODO: 拨打电话
         logger.debug('{} ok_event_clicked_handler')
+
+    def rt_event_clicked_handler(self, event):
+        AppGridScreen().load()
 
 
 class VoiceCallScreen(Widget):
@@ -857,6 +890,8 @@ class CountDownSettingScreen(Widget):
         self.rt_label = Label(self, text='设置', style_text_color=(lv.palette_main(lv.PALETTE.YELLOW), lv.PART.MAIN | lv.STATE.DEFAULT))
         self.rt_label.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
         self.rt_label.align_to(self.rt_img, lv.ALIGN.OUT_RIGHT_MID, 5, 0)
+        self.rt_label.add_flag(lv.obj.FLAG.CLICKABLE)
+        self.rt_label.add_event_cb(self.rt_event_clicked_handler, lv.EVENT.CLICKED, None)
         self.time = Label(self, text='09:00', align=lv.ALIGN.TOP_RIGHT)
 
         self.layout = Widget(
@@ -965,6 +1000,10 @@ class CountDownSettingScreen(Widget):
 
     def ok_event_clicked_handler(self, event):
         print('{} ok_event_clicked_handler'.format(type(self).__name__))
+        CountDownScreen().load()
+
+    def rt_event_clicked_handler(self, event):
+        AppGridScreen().load()
 
 
 class CountDownScreen(Widget):
