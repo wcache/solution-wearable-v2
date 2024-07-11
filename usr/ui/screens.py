@@ -1178,3 +1178,50 @@ class AlarmSettingScreen(Widget):
         self.btn2label.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
         self.btn2label.set_align(lv.ALIGN.CENTER)
         self.btn2label.set_style_text_color(lv.palette_main(lv.PALETTE.RED), lv.PART.MAIN | lv.STATE.DEFAULT)
+
+
+class SettingItem(Widget):
+
+    def __init__(self, parent, icon='', text=''):
+        super().__init__(parent, size=(228, 50))
+        self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.icon = Image(self, src=icon)
+        self.text = Label(self, text=text)
+        self.text.add_style(arial27_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.text.align_to(self.icon, lv.ALIGN.OUT_RIGHT_MID, 10, 0)
+        self.add_event_cb(self.event_clicked_handler, lv.EVENT.CLICKED, None)
+
+    def event_clicked_handler(self, event):
+        print('{} {} event_clicked_handler'.format(type(self).__name__, self.text.get_text()))
+
+
+class SettingScreen(Widget):
+    RT_ICON_SRC = 'E:/media/chevron-left-y.png'
+    RECT_IMG_SRC = 'E:/media/Rectangle_54.png'
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.rt_img = Image(self, src=self.RT_ICON_SRC, align=lv.ALIGN.TOP_LEFT)
+        self.rt_label = Label(self, text='设置', style_text_color=(lv.palette_main(lv.PALETTE.YELLOW), lv.PART.MAIN | lv.STATE.DEFAULT))
+        self.rt_label.add_style(arial18_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+        self.rt_label.align_to(self.rt_img, lv.ALIGN.OUT_RIGHT_MID, 5, 0)
+        self.time = Label(self, text='09:00', align=lv.ALIGN.TOP_RIGHT)
+
+        self.layout = Widget(
+            self,
+            size=(240, 250),
+            y=30,
+            layout=lv.LAYOUT_FLEX.value,
+            style_flex_flow=(lv.FLEX_FLOW.COLUMN, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_main_place=(lv.FLEX_ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_cross_place=(lv.FLEX_ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT),
+            style_flex_track_place=(lv.FLEX_ALIGN.CENTER, lv.PART.MAIN | lv.STATE.DEFAULT),
+        )
+        self.layout.add_style(normal_style, lv.PART.MAIN | lv.STATE.DEFAULT)
+
+        self.about = SettingItem(self.layout, icon='E:/media/img_about.png', text='关于')
+        self.alarm = SettingItem(self.layout, icon='E:/media/img_alarm.png', text='闹钟')
+        self.message = SettingItem(self.layout, icon='E:/media/img_message_small.png', text='微信')
+        self.notify = SettingItem(self.layout, icon='E:/media/img_notify.png', text='通知')
